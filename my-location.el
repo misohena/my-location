@@ -157,8 +157,25 @@
                         :month input-month
                         :year input-year))))
 
+(defun my-location-guess-time-from-file-name (file)
+  (when (and (stringp file)
+             (string-match "\\(20[0-9][0-9]\\|19[0-9][0-9]\\)-?\\(0[1-9]\\|1[0-2]\\)-?\\([0-3][0-9]\\)[ _]?\\([01][0-9]\\|2[0-3]\\)\\([0-5][0-9]\\)\\([0-5][0-9]\\)?" file))
+    (encode-time
+     (make-decoded-time
+      :year (string-to-number (match-string 1 file))
+      :month (string-to-number (match-string 2 file))
+      :day (string-to-number (match-string 3 file))
+      :hour (string-to-number (match-string 4 file))
+      :minute (string-to-number (match-string 5 file))
+      :second (string-to-number (or (match-string 6 file) "0"))))))
+
 (defun my-location-read-date-time (prompt)
-  (my-location-string-to-time (read-string prompt)))
+  (let* ((str (read-string prompt))
+         (time (or (ignore-errors (my-location-string-to-time str))
+                   (my-location-guess-time-from-file-name str))))
+    (unless time
+      (error "Invalid date/time format"))
+    time))
 
 ;;;; Track Point
 
