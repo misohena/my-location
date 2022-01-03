@@ -24,6 +24,10 @@
 
 ;;; Code:
 
+(require 'dom)
+(require 'cl-lib)
+(require 'subr-x)
+
 (defgroup my-location nil
   "Find out where you were at the specified time"
   :prefix "my-location-")
