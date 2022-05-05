@@ -27,6 +27,7 @@
 (require 'dom)
 (require 'cl-lib)
 (require 'subr-x)
+(require 'parse-time)
 
 (defgroup my-location nil
   "Find out where you were at the specified time"
