@@ -31,7 +31,8 @@
 
 (defgroup my-location nil
   "Find out where you were at the specified time"
-  :prefix "my-location-")
+  :prefix "my-location-"
+  :group 'data)
 
 ;;;; Math
 
@@ -216,9 +217,13 @@
 (defun my-location-segment-find-point-by-time (segment time)
   "SEGMENTに記録されている点のリストのTIMEで指定されている時刻以降を返します。
 
-返すリストの要素が一つだけの場合、SEGMENTが持つ一番最後の点とTIMEの時刻は一致しています。
+返すリストの要素が一つだけの場合、SEGMENTが持つ一番最後の点とTIME
+の時刻は一致しています。
 
-返すリストの要素が二つ以上の場合、先頭と二番目の要素の間に時刻TIMEがあります。二つ目の要素がある場合、二つ目の時刻は必ずTIMEより大きくなります(等しいということはありません)。一つ目の要素はTIMEと同じか小さい時刻になります。
+返すリストの要素が二つ以上の場合、先頭と二番目の要素の間に時刻
+TIMEがあります。二つ目の要素がある場合、二つ目の時刻は必ずTIMEよ
+り大きくなります(等しいということはありません)。一つ目の要素は
+TIMEと同じか小さい時刻になります。
 
 TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。
 "
@@ -270,13 +275,16 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
 
 (defun my-location-clear ()
   (interactive)
-  (setq my-location-loaded-files nil)
-  (setq my-location-tracks nil)
-  (setq my-location-segments nil))
+  (my-location-loaded-files-clear)
+  (my-location-tracks-clear)
+  (my-location-segments-clear))
 
 ;;;;; Global Segment List
 
 (defvar my-location-segments nil) ;; a list of segment
+
+(defun my-location-segments-clear ()
+  (setq my-location-segments nil))
 
 (defun my-location-segment-on-time (time-lower &optional time-upper)
   (unless time-upper
@@ -311,6 +319,9 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
 
 (defvar my-location-tracks nil) ;;a list of track
 
+(defun my-location-tracks-clear ()
+  (setq my-location-tracks nil))
+
 (defun my-location-add-track (track)
   (push track my-location-tracks)
   (mapc
@@ -325,6 +336,9 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
 ;;;;; Global File Management
 
 (defvar my-location-loaded-files nil)
+
+(defun my-location-loaded-files-clear ()
+  (setq my-location-loaded-files nil))
 
 (defcustom my-location-sources
   '((:dir "~/my-location/%Y%m" :file-pattern "\\`%Y%m%d.*\\.gpx"))
