@@ -1,14 +1,24 @@
+// 履歴の中に登場するデバイスの一覧を作成するスクリプト
+
+// deviceTag(数値)と現れる時間の範囲や緯度経度の範囲を求める。
+
+//   node enum-devices.js > devices.txt
+
 import fs from 'fs';
 import path from 'path';
 import JSONStream from 'JSONStream';
 
-const inputFile = "./takeout-20211217T164337Z-001/Takeout/ロケーション履歴/ロケーション履歴.json"; //[修正してください]
+const inputFile = "./takeout-20241212T072446Z-001/Takeout/ロケーション履歴/ロケーション履歴（タイムライン）/Records.json"; //[修正してください]
 
 const devices = [];
 
 function recordDevice(data){
     const device = devices.find((device)=>device.tag == data.deviceTag);
-    const time = (new Date(parseInt(data.timestampMs))).toISOString();
+
+    // 以前は整数値で入っていたが、今回はISO文字列になっていた
+    // const time = (new Date(parseInt(data.timestampMs))).toISOString();
+    const time = (new Date(Date.parse(data.timestamp))).toISOString();
+
     if(device){
         device.lastTime = time;
         device.count++;

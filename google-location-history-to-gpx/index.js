@@ -1,8 +1,12 @@
+// ロケーション履歴のjsonを日付毎にGPXへ変換するスクリプト
+
+//   node index.js
+
 import fs from 'fs';
 import path from 'path';
 import JSONStream from 'JSONStream';
 
-const inputFile = "./takeout-20211217T164337Z-001/Takeout/ロケーション履歴/ロケーション履歴.json"; //[修正してください]
+const inputFile = "./takeout-20241212T072446Z-001/Takeout/ロケーション履歴/ロケーション履歴（タイムライン）/Records.json"; //[修正してください]
 const outputDir = "output";
 
 // 無視するデバイスの deviceTag を指定する。
@@ -24,6 +28,7 @@ function addPoint(timeMs, lat, lng){
 
     // date change?
     if(!lastDate ||
+       // ↓ローカル時間での日付区切りになる(UTC区切りにしたければ要変更)
        lastDate.getFullYear() != date.getFullYear() ||
        lastDate.getMonth() != date.getMonth() ||
        lastDate.getDate() != date.getDate()){
@@ -85,7 +90,7 @@ const inputStream = fs.createReadStream(inputFile)
 inputStream.on('data', (data)=>{
     if(!ignoreDevices.includes(data.deviceTag)){
         addPoint(
-            parseInt(data.timestampMs),
+            Date.parse(data.timestamp), // parseInt(data.timestampMs), 以前は整数値だった
             parseInt(data.latitudeE7) / 10000000,
             parseInt(data.longitudeE7) / 10000000);
     }
