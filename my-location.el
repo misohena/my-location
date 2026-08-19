@@ -306,13 +306,13 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
 (defun my-location-points-on-time (time &optional no-auto-load-p)
   (unless no-auto-load-p
     (my-location-load-files-on-time time))
-  (when-let ((segment (my-location-segment-on-time time)))
+  (when-let* ((segment (my-location-segment-on-time time)))
     (my-location-segment-find-point-by-time segment time)))
 
 (defun my-location-latlng-at-time (time &optional no-auto-load-p)
   (unless no-auto-load-p
     (my-location-load-files-on-time time))
-  (when-let ((segment (my-location-segment-on-time time)))
+  (when-let* ((segment (my-location-segment-on-time time)))
     (my-location-segment-latlng-at-time segment time)))
 
 ;;;;; Global Track List
@@ -356,8 +356,8 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
    #'nconc
    (mapcar
     (lambda (source)
-      (when-let ((dir-format (plist-get source :dir))
-                 (file-pattern-format (plist-get source :file-pattern)))
+      (when-let* ((dir-format (plist-get source :dir))
+                  (file-pattern-format (plist-get source :file-pattern)))
         (let ((dir (format-time-string dir-format time))
               (file-pattern (format-time-string file-pattern-format time)))
           (when (and (file-exists-p dir)
@@ -403,7 +403,7 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
            when (eq (dom-tag trk) 'trk)
            collect
            (let* ((track (my-location-track-create
-                          (dom-text (car (dom-by-tag trk 'name)))))
+                          (my-location-dom-text (car (dom-by-tag trk 'name)))))
                   (segments (cl-loop
                              for trkseg in (dom-children trk)
                              when (eq (dom-tag trkseg) 'trkseg)
@@ -413,19 +413,29 @@ TIMEがSEGMENTが持つ範囲の外である場合、nilを返します。"
                                for trkpt in (dom-children trkseg)
                                when (eq (dom-tag trkpt) 'trkpt)
                                collect
-                               (when-let ((lat-str (dom-attr trkpt 'lat))
-                                          (lng-str (dom-attr trkpt 'lon))
-                                          (time-elem (car (dom-by-tag trkpt 'time))))
+                               (when-let* ((lat-str (dom-attr trkpt 'lat))
+                                           (lng-str (dom-attr trkpt 'lon))
+                                           (time-elem (car (dom-by-tag trkpt 'time))))
                                  (my-location-point-create
                                   (string-to-number lat-str)
                                   (string-to-number lng-str)
                                   (parse-iso8601-time-string
-                                   (dom-text time-elem)))))
+                                   (my-location-dom-text time-elem)))))
                               track))))
              (setf (my-location-track-segments track) segments)
              track))))
     (my-location-add-tracks tracks)
     tracks))
+
+(defun my-location-dom-text (node)
+  (cond
+   ;; Emacs 31~
+   ((fboundp 'dom-inner-text)
+    (dom-inner-text node))
+   ;; ~Emacs 30
+   ((fboundp 'dom-text)
+    (dom-text node))
+   (t "")))
 
 
 ;;;; Map
